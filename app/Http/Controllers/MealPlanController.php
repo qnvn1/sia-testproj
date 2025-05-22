@@ -13,7 +13,7 @@ class SpoonacularServices
             $response = Http::timeout(5)->retry(3, 100)->get(
                 config('services.spoonacular.base_uri') . 'recipes/findByNutrients',
                 [
-                    'minCarbs' => $minCarbs,
+                    'minCarbs' => $minCarbs, 
                     'maxCarbs' => $maxCarbs,
                     'apiKey' => config('services.spoonacular.key'),
                 ]

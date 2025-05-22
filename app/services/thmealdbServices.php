@@ -1,15 +1,14 @@
 <?php
-class SpoonacularServices
+
+class MealDbService
 {
-    public function getMealsByCarbs($minCarbs = 10, $maxCarbs = 50)
+    public function searchMeal($mealName)
     {
         try {
             $response = Http::timeout(5)->retry(3, 100)->get(
-                config('services.spoonacular.base_uri') . 'recipes/findByNutrients',
+                config('services.mealdb.base_uri') . 'search.php',
                 [
-                    'minCarbs' => $minCarbs, 
-                    'maxCarbs' => $maxCarbs,
-                    'apiKey' => config('services.spoonacular.key'),
+                    's' => $mealName
                 ]
             );
 
@@ -21,7 +20,7 @@ class SpoonacularServices
                 throw new \Exception('Server error');
             }
         } catch (\Exception $e) {
-            Log::error('Spoonacular API request failed', ['message' => $e->getMessage()]);
+            Log::error('MealDB API request failed', ['message' => $e->getMessage()]);
             return null;
         }
     }
