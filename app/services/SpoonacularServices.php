@@ -18,7 +18,7 @@ class SpoonacularServices
             } elseif ($response->clientError()) {
                 throw new \Exception('Client error');
             } elseif ($response->serverError()) {
-                throw new \Exception('Server error');
+                throw new \Exception('At least one nutrient filter must be given.');
             }
         } catch (\Exception $e) {
             Log::error('Spoonacular API request failed', ['message' => $e->getMessage()]);

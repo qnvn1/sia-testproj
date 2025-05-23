@@ -1,14 +1,10 @@
 <?php
-return[
-    'spoonacular' => [
-    'key' => env('SPOONACULAR_API_KEY'),
-    'base_url' => 'https://api.spoonacular.com/',
-],
-'mealdb' => [
-    'base_url' => 'https://www.themealdb.com/api/json/v1/1/',
-],
-'foodish' => [
-    'base_url' => 'https://foodish-api.com/images/',
-],
 
-];
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MealPlanController;
+
+Route::get('/meals', [MealPlanController::class, 'showMeals']);
+Route::get('/search-meal', [MealPlanController::class, 'searchMeal']);
+Route::get('/meal-image', [MealPlanController::class, 'showMealImage']);
+Route::get('/advice', [MealPlanController::class, 'showRandomAdvice']);
+Route::get('/advice/{id}', [MealPlanController::class, 'showAdviceById']);
