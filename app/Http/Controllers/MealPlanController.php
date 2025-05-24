@@ -7,6 +7,7 @@ use App\Services\SpoonacularServices;
 use App\Services\MealDbService;
 use App\Services\FoodishService;
 use App\Services\AdviceSlipService;
+use App\Services\ExerciseService; 
 
 class MealPlanController extends Controller
 {
@@ -14,17 +15,20 @@ class MealPlanController extends Controller
     protected $mealDbService;
     protected $foodishService;
     protected $adviceSlipService;
+    protected $exerciseService; 
 
     public function __construct(
         SpoonacularServices $spoonacularService,
         MealDbService $mealDbService,
         FoodishService $foodishService,
-        AdviceSlipService $adviceSlipService
+        AdviceSlipService $adviceSlipService,
+        ExerciseService $exerciseService 
     ) {
         $this->spoonacularService = $spoonacularService;
         $this->mealDbService = $mealDbService;
         $this->foodishService = $foodishService;
         $this->adviceSlipService = $adviceSlipService;
+        $this->exerciseService = $exerciseService; 
     }
 
     public function showMeals()
@@ -55,5 +59,13 @@ class MealPlanController extends Controller
     {
         $advice = $this->adviceSlipService->getAdviceById($id);
         return view('meals.advice', ['advice' => $advice['slip']['advice'] ?? 'No advice found.']);
+    }
+
+    public function showExercises(Request $request)
+    {
+        $muscle = $request->input('muscle', 'biceps');
+        $exercises = $this->exerciseService->getExercisesByMuscle($muscle);
+
+        return view('meals.exercises', compact('exercises', 'muscle'));
     }
 }
