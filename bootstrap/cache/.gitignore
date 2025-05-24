@@ -1,0 +1,5 @@
+*
+!.gitignore
+# Laravel cache
+/bootstrap/cache/*
+!/bootstrap/cache/.gitkeep
