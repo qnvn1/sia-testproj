@@ -1,4 +1,9 @@
 <?php
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 class SpoonacularServices
 {
     public function getMealsByCarbs($minCarbs = 10, $maxCarbs = 50)

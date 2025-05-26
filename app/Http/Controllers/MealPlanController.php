@@ -7,7 +7,8 @@ use App\Services\SpoonacularServices;
 use App\Services\MealDbService;
 use App\Services\FoodishService;
 use App\Services\AdviceSlipService;
-use App\Services\ExerciseService; 
+use App\Services\ExerciseService;
+use Illuminate\Http\JsonResponse;
 
 class MealPlanController extends Controller
 {
@@ -15,57 +16,158 @@ class MealPlanController extends Controller
     protected $mealDbService;
     protected $foodishService;
     protected $adviceSlipService;
-    protected $exerciseService; 
+    protected $exerciseService;
 
     public function __construct(
         SpoonacularServices $spoonacularService,
         MealDbService $mealDbService,
         FoodishService $foodishService,
         AdviceSlipService $adviceSlipService,
-        ExerciseService $exerciseService 
+        ExerciseService $exerciseService
     ) {
         $this->spoonacularService = $spoonacularService;
         $this->mealDbService = $mealDbService;
         $this->foodishService = $foodishService;
         $this->adviceSlipService = $adviceSlipService;
-        $this->exerciseService = $exerciseService; 
+        $this->exerciseService = $exerciseService;
     }
 
-    public function showMeals()
+    /**
+     * Display a listing of meals.
+     */
+    public function index(): JsonResponse
     {
-        $meals = $this->spoonacularService->getMealsByCarbs(10, 50);
-        return view('meals.index', compact('meals'));
+        try {
+            $meals = $this->spoonacularService->getMealsByCarbs(10, 50);
+            return $this->successResponse($meals);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
-    public function searchMeal(Request $request)
+    /**
+     * Search for meals by name.
+     */
+    public function searchMeal(Request $request): JsonResponse
     {
-        $results = $this->mealDbService->searchMeal($request->input('meal'));
-        return view('meals.search', compact('results'));
+        try {
+            $request->validate([
+                'meal' => 'required|string|min:2'
+            ]);
+
+            $results = $this->mealDbService->searchMeal($request->input('meal'));
+            return $this->successResponse($results);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 400);
+        }
     }
 
-    public function showMealImage()
+    /**
+     * Get a random meal image.
+     */
+    public function showMealImage(): JsonResponse
     {
-        $imageUrl = $this->foodishService->getImageUrl();
-        return view('meals.image', compact('imageUrl'));
+        try {
+            $imageUrl = $this->foodishService->getImageUrl();
+            return $this->successResponse(['image_url' => $imageUrl]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
-    public function showRandomAdvice()
+    /**
+     * Get random advice.
+     */
+    public function showRandomAdvice(): JsonResponse
     {
-        $advice = $this->adviceSlipService->getRandomAdvice();
-        return view('meals.advice', ['advice' => $advice['slip']['advice'] ?? 'No advice found.']);
+        try {
+            $advice = $this->adviceSlipService->getRandomAdvice();
+            return $this->successResponse([
+                'advice' => $advice['slip']['advice'] ?? 'No advice found'
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 500);
+        }
     }
 
-    public function showAdviceById($id)
+    /**
+     * Get advice by ID.
+     */
+    public function showAdviceById($id): JsonResponse
     {
-        $advice = $this->adviceSlipService->getAdviceById($id);
-        return view('meals.advice', ['advice' => $advice['slip']['advice'] ?? 'No advice found.']);
+        try {
+            $advice = $this->adviceSlipService->getAdviceById($id);
+            return $this->successResponse([
+                'advice' => $advice['slip']['advice'] ?? 'No advice found for this ID'
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 404);
+        }
     }
 
-    public function showExercises(Request $request)
+    /**
+     * Get exercises by muscle group.
+     */
+    public function showExercises(Request $request): JsonResponse
     {
-        $muscle = $request->input('muscle', 'biceps');
-        $exercises = $this->exerciseService->getExercisesByMuscle($muscle);
+        try {
+            $request->validate([
+                'muscle' => 'sometimes|string|min:3'
+            ]);
 
-        return view('meals.exercises', compact('exercises', 'muscle'));
+            $muscle = $request->input('muscle', 'biceps');
+            $exercises = $this->exerciseService->getExercisesByMuscle($muscle);
+            
+            return $this->successResponse([
+                'muscle' => $muscle,
+                'exercises' => $exercises
+            ]);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * Save a meal to user favorites (protected route).
+     */
+    public function saveMeal(Request $request): JsonResponse
+    {
+        try {
+            $request->validate([
+                'meal_id' => 'required|string',
+                'meal_name' => 'required|string'
+            ]);
+
+            // Add your save logic here
+            // $saved = $this->mealService->saveUserMeal(auth()->id(), $request->all());
+            
+            return $this->successResponse([], 'Meal saved successfully', 201);
+        } catch (\Exception $e) {
+            return $this->errorResponse($e->getMessage(), 400);
+        }
+    }
+
+    /**
+     * Helper method for successful responses.
+     */
+    protected function successResponse($data = [], string $message = 'Success', int $statusCode = 200): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'message' => $message,
+            'data' => $data
+        ], $statusCode);
+    }
+
+    /**
+     * Helper method for error responses.
+     */
+    protected function errorResponse(string $message, int $statusCode): JsonResponse
+    {
+        return response()->json([
+            'success' => false,
+            'message' => $message,
+            'data' => null
+        ], $statusCode);
     }
 }
