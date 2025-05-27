@@ -1,7 +1,13 @@
 <?php
 
 class MealDB {
-    private const API_BASE_URL = 'https://www.themealdb.com/api/json/v1/1/';
+    private const API_BASE_URL = 
+
+    public function __construct()
+    {
+        
+        $this->baseUrl = config('services.mealdb.base_uri');
+    }
     
     public function searchMeals(string $mealName): ?array {
         try {

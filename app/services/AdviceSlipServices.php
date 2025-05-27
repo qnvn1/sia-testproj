@@ -6,7 +6,13 @@ use Illuminate\Support\Facades\Http;
 
 class AdviceSlipService
 {
-    protected $baseUrl = 'https://api.adviceslip.com/advice';
+    protected $baseUrl = 'https://api.adviceslip.com/advice'
+
+    public function __construct()
+    {
+        
+        $this->baseUrl = config('services.advice.base_uri');
+    }
 
     public function getAdviceById($id)
     {
