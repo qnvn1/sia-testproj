@@ -1,34 +1,30 @@
 <?php
 
-class MealDB {
-    private const API_BASE_URL = 
+namespace App\Services;
+
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
+class MealDbService
+{
+    protected $baseUrl;
 
     public function __construct()
     {
-        
         $this->baseUrl = config('services.mealdb.base_uri');
     }
-    
-    public function searchMeals(string $mealName): ?array {
+
+    public function searchMeals(string $mealName)
+    {
         try {
-            $response = Http::get(self::API_BASE_URL . 'search.php', [
-                's' => $mealName
-            ]);
+            $response = Http::timeout(3)
+                ->get("{$this->baseUrl}search.php", ['s' => $mealName]);
 
-            if ($response->successful()) {
-                return $response->json();
-            }
-
-            if ($response->clientError()) {
-                throw new Exception('no data found: ' . $response->status());
-            }
-
-        } catch (Exception $e) {
-            error_log('Meal search request failed: ' . $e->getMessage());
-            return null;
+            $data = $response->throw()->json();
+            return $data['meals'] ?? [];
+        } catch (\Exception $e) {
+            Log::error("MealDB Search Error for {$mealName}: ".$e->getMessage());
+            return ['error' => 'Meal data unavailable'];
         }
     }
 }
-
-$mealDB = new MealDB();
-$results = $mealDB->searchMeals('pasta');

@@ -1,9 +1,23 @@
 <?php
 
+namespace App\Services;
+
 class FoodishService
 {
-    public function getImageUrl($category = 'butter-chicken', $image = 'butter-chicken16.jpg')
+    protected $baseUrl;
+
+    public function __construct()
     {
-        return config('services.foodish.base_url') . "$category/$image";
+        $this->baseUrl = 'https://foodish-api.com/'; // Directly using the correct URL
+    }
+
+    public function getRandomImage($category = null)
+    {
+        return $this->baseUrl . 'api/' . ($category ? "images/$category" : '');
+    }
+
+    public function getSpecificImage($category, $imageName)
+    {
+        return $this->baseUrl . "api/images/$category/$imageName";
     }
 }

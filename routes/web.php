@@ -1,10 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\MealPlanController;
-
-Route::get('/meals', [MealPlanController::class, 'showMeals']);
-Route::get('/search-meal', [MealPlanController::class, 'searchMeal']);
-Route::get('/meal-image', [MealPlanController::class, 'showMealImage']);
-Route::get('/advice', [MealPlanController::class, 'showRandomAdvice']);
-Route::get('/advice/{id}', [MealPlanController::class, 'showAdviceById']);
+Route::get('/test-apis', function() {
+    // Test each service directly
+    $advice = app(App\Services\AdviceSlipService::class)->getRandomAdvice();
+    $exercise = app(App\Services\ExerciseService::class)->getExercisesByMuscle('biceps');
+    
+    return response()->json([
+        'configurations' => [
+            'advice' => config('services.advice'),
+            'exercise' => config('services.exercise'),
+            'foodish' => config('services.foodish'),
+            'mealdb' => config('services.mealdb'),
+            'spoonacular' => config('services.spoonacular')
+        ],
+        'api_tests' => [
+            'advice' => $advice,
+            'exercise' => $exercise
+        ]
+    ]);
+});

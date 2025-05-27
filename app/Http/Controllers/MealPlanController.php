@@ -2,172 +2,109 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Services\SpoonacularServices;
-use App\Services\MealDbService;
-use App\Services\FoodishService;
 use App\Services\AdviceSlipService;
 use App\Services\ExerciseService;
-use Illuminate\Http\JsonResponse;
+use App\Services\FoodishService;
+use App\Services\MealDbService;
+use App\Services\SpoonacularServices;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class MealPlanController extends Controller
 {
-    protected $spoonacularService;
-    protected $mealDbService;
-    protected $foodishService;
-    protected $adviceSlipService;
+    protected $adviceService;
     protected $exerciseService;
+    protected $foodishService;
+    protected $mealDbService;
+    protected $spoonacularService;
 
     public function __construct(
-        SpoonacularServices $spoonacularService,
-        MealDbService $mealDbService,
+        AdviceSlipService $adviceService,
+        ExerciseService $exerciseService,
         FoodishService $foodishService,
-        AdviceSlipService $adviceSlipService,
-        ExerciseService $exerciseService
+        MealDbService $mealDbService,
+        SpoonacularServices $spoonacularService
     ) {
-        $this->spoonacularService = $spoonacularService;
-        $this->mealDbService = $mealDbService;
-        $this->foodishService = $foodishService;
-        $this->adviceSlipService = $adviceSlipService;
+        $this->adviceService = $adviceService;
         $this->exerciseService = $exerciseService;
+        $this->foodishService = $foodishService;
+        $this->mealDbService = $mealDbService;
+        $this->spoonacularService = $spoonacularService;
     }
 
-    /**
-     * Display a listing of meals.
-     */
-    public function index(): JsonResponse
-    {
-        try {
-            $meals = $this->spoonacularService->getMealsByCarbs(10, 50);
-            return $this->successResponse($meals);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Search for meals by name.
-     */
-    public function searchMeal(Request $request): JsonResponse
-    {
-        try {
-            $request->validate([
-                'meal' => 'required|string|min:2'
-            ]);
-
-            $results = $this->mealDbService->searchMeal($request->input('meal'));
-            return $this->successResponse($results);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 400);
-        }
-    }
-
-    /**
-     * Get a random meal image.
-     */
-    public function showMealImage(): JsonResponse
-    {
-        try {
-            $imageUrl = $this->foodishService->getImageUrl();
-            return $this->successResponse(['image_url' => $imageUrl]);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Get random advice.
-     */
-    public function showRandomAdvice(): JsonResponse
-    {
-        try {
-            $advice = $this->adviceSlipService->getRandomAdvice();
-            return $this->successResponse([
-                'advice' => $advice['slip']['advice'] ?? 'No advice found'
-            ]);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 500);
-        }
-    }
-
-    /**
-     * Get advice by ID.
-     */
-    public function showAdviceById($id): JsonResponse
-    {
-        try {
-            $advice = $this->adviceSlipService->getAdviceById($id);
-            return $this->successResponse([
-                'advice' => $advice['slip']['advice'] ?? 'No advice found for this ID'
-            ]);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 404);
-        }
-    }
-
-    /**
-     * Get exercises by muscle group.
-     */
-    public function showExercises(Request $request): JsonResponse
-    {
-        try {
-            $request->validate([
-                'muscle' => 'sometimes|string|min:3'
-            ]);
-
-            $muscle = $request->input('muscle', 'biceps');
-            $exercises = $this->exerciseService->getExercisesByMuscle($muscle);
-            
-            return $this->successResponse([
-                'muscle' => $muscle,
-                'exercises' => $exercises
-            ]);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 400);
-        }
-    }
-
-    /**
-     * Save a meal to user favorites (protected route).
-     */
-    public function saveMeal(Request $request): JsonResponse
-    {
-        try {
-            $request->validate([
-                'meal_id' => 'required|string',
-                'meal_name' => 'required|string'
-            ]);
-
-            // Add your save logic here
-            // $saved = $this->mealService->saveUserMeal(auth()->id(), $request->all());
-            
-            return $this->successResponse([], 'Meal saved successfully', 201);
-        } catch (\Exception $e) {
-            return $this->errorResponse($e->getMessage(), 400);
-        }
-    }
-
-    /**
-     * Helper method for successful responses.
-     */
-    protected function successResponse($data = [], string $message = 'Success', int $statusCode = 200): JsonResponse
+    // Main endpoint
+    public function index()
     {
         return response()->json([
-            'success' => true,
-            'message' => $message,
-            'data' => $data
-        ], $statusCode);
+            'message' => 'Meal Plan API',
+            'endpoints' => [
+                '/search' => 'Search meals',
+                '/random-image' => 'Get random food image',
+                '/random-advice' => 'Get random advice',
+                '/advice/{id}' => 'Get specific advice',
+                '/exercises' => 'Get exercises by muscle'
+            ]
+        ]);
     }
 
-    /**
-     * Helper method for error responses.
-     */
-    protected function errorResponse(string $message, int $statusCode): JsonResponse
+    // Search meals (MealDB)
+    public function searchMeal(Request $request)
+    {
+        $request->validate(['q' => 'sometimes|string']);
+        $mealName = $request->query('q', 'pasta');
+        return $this->mealDbService->searchMeals($mealName);
+    }
+
+    // Random food image (Foodish)
+    public function showMealImage()
     {
         return response()->json([
-            'success' => false,
-            'message' => $message,
-            'data' => null
-        ], $statusCode);
+            'image_url' => $this->foodishService->getImageUrl('pizza')
+        ]);
+    }
+
+    // Random advice (AdviceSlip)
+    public function showRandomAdvice()
+    {
+        return $this->adviceService->getRandomAdvice();
+    }
+
+    // Specific advice (AdviceSlip)
+    public function showAdviceById($id)
+    {
+        return $this->adviceService->getAdviceById($id) ?? 
+               response()->json(['error' => 'Advice not found'], 404);
+    }
+
+    // Exercises (Exercise API)
+    public function showExercises(Request $request)
+    {
+        $request->validate(['muscle' => 'sometimes|string']);
+        $muscle = $request->query('muscle', 'biceps');
+        return $this->exerciseService->getExercisesByMuscle($muscle) ?? 
+               response()->json(['error' => 'Exercises not found'], 404);
+    }
+
+    // Protected: Save meal plan (Spoonacular)
+    public function saveMeal(Request $request)
+    {
+        $validated = $request->validate([
+            'meal_id' => 'required',
+            'meal_name' => 'required',
+            'date' => 'required|date'
+        ]);
+
+        // Get user-specific data
+        $username = Auth::user()->username; // Assuming you have username
+        $hash = config('services.spoonacular.hash');
+
+        // Call Spoonacular API
+        $response = $this->spoonacularService->saveMeal(
+            $username,
+            $hash,
+            $validated
+        );
+
+        return $response ?? response()->json(['error' => 'Failed to save meal'], 500);
     }
 }

@@ -8,7 +8,46 @@ use App\Http\Controllers\MealPlanController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Meal routes (public)
+
+Route::prefix('test')->group(function () {
+    Route::get('/foodish/random', function (App\Services\FoodishService $service) {
+        return $service->getRandomImage();
+    });
+    
+    Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
+        return $service->getSpecificImage('burger', 'burger1.jpg');
+    });
+
+    // Exercise API Tests
+    Route::get('/exercises/biceps', function (App\Services\ExerciseService $service) {
+        return $service->getExercisesByMuscle('biceps');
+    });
+    
+    Route::get('/exercises/cardio', function (App\Services\ExerciseService $service) {
+        return $service->getExercisesByType('cardio');
+    });
+    
+    // AdviceSlip API Tests
+    Route::get('/advice/random', function (App\Services\AdviceSlipService $service) {
+        return $service->getRandomAdvice();
+    });
+    
+    Route::get('/advice/{id}', function (App\Services\AdviceSlipService $service, $id) {
+        return $service->getAdviceById($id);
+    });
+    
+    // MealDB API Tests
+    Route::get('/meals/search', function (App\Services\MealDbService $service) {
+        return $service->searchMeals(request()->query('q', 'pasta'));
+    });
+    
+    // Spoonacular API Tests
+    Route::get('/meal-plan/weekly', function (App\Services\SpoonacularService $service) {
+        return $service->generateWeeklyPlan();
+    });
+});
+
+// Main API endpoints (via controller)
 Route::prefix('meals')->group(function () {
     Route::get('/', [MealPlanController::class, 'index']);
     Route::get('/search', [MealPlanController::class, 'searchMeal']);
@@ -20,13 +59,12 @@ Route::prefix('meals')->group(function () {
 
 // Protected routes
 Route::middleware('auth:sanctum')->group(function () {
-    // Auth routes
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
     
-    // Protected meal routes
     Route::prefix('meals')->group(function () {
         Route::post('/save', [MealPlanController::class, 'saveMeal']);
-        // Add other protected meal endpoints here
+        Route::get('/meal-plan', [MealPlanController::class, 'generateMealPlan']);
+        Route::post('/meal-plan/items', [MealPlanController::class, 'saveMealItem']);
     });
 });
