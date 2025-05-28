@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MealPlanController;
 
@@ -9,14 +11,36 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
-Route::prefix('test')->group(function () {
+Route::prefix('meal')->group(function () {
     Route::get('/foodish/random', function (App\Services\FoodishService $service) {
-    return redirect($service->getRandomImage());
-    });
+    $imageUrl = $service->getRandomImage();
+    $imageResponse = Http::get($imageUrl);
+
+    if (!$imageResponse->successful()) {
+        abort(500, 'Failed to fetch image.');
+    }
+
+    return Response::make(
+        $imageResponse->body(),
+        200,
+        ['Content-Type' => $imageResponse->header('Content-Type')]
+    );
+});
     
     Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
-        return $service->getSpecificImage('burger', 'burger1.jpg');
-    });
+    $imageUrl = $service->getSpecificImage('burger', 'burger1.jpg');
+    $response = Http::get($imageUrl);
+
+    if (!$response->successful()) {
+        abort(500, 'Failed to fetch the image.');
+    }
+
+    return Response::make(
+        $response->body(),
+        200,
+        ['Content-Type' => $response->header('Content-Type')]
+    );
+});
 
     // Exercise API Tests
     Route::get('/exercises/biceps', function (App\Services\ExerciseService $service) {

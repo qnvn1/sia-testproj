@@ -2,22 +2,31 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
+
 class FoodishService
 {
-    protected $baseUrl;
+    protected string $baseUrl = 'https://foodish-api.com/api/';
 
-    public function __construct()
+    public function getRandomImage(): string
     {
-        $this->baseUrl = 'https://foodish-api.com/'; // Directly using the correct URL
-    }
+        $response = Http::get($this->baseUrl);
 
-    public function getRandomImage($category = null)
-    {
-        return $this->baseUrl . 'api/' . ($category ? "images/$category" : '');
+        if (!$response->successful()) {
+            throw new \Exception('Failed to fetch image URL.');
+        }
+
+        $json = $response->json();
+
+        if (!isset($json['image'])) {
+            throw new \Exception('Image URL not found in response.');
+        }
+
+        return $json['image'];
     }
 
     public function getSpecificImage($category, $imageName)
-    {
-        return $this->baseUrl . "api/images/$category/$imageName";
+{
+    return "https://foodish-api.com/images/{$category}/{$imageName}";
     }
-}
+}    
