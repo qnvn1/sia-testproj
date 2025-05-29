@@ -13,18 +13,25 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::prefix('meal')->group(function () {
     Route::get('/foodish/random', function (App\Services\FoodishService $service) {
-    $imageUrl = $service->getRandomImage();
-    $imageResponse = Http::get($imageUrl);
+    try {
+        $imageUrl = $service->getRandomImage();
+        $imageResponse = Http::get($imageUrl);
 
-    if (!$imageResponse->successful()) {
-        abort(500, 'Failed to fetch image.');
+        if (!$imageResponse->successful()) {
+            abort(500, 'Failed to fetch image.');
+        }
+
+        return Response::make(
+            $imageResponse->body(),
+            200,
+            ['Content-Type' => $imageResponse->header('Content-Type')]
+        );
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'An error occurred while loading the random image.',
+            'details' => $e->getMessage()
+        ], 500);
     }
-
-    return Response::make(
-        $imageResponse->body(),
-        200,
-        ['Content-Type' => $imageResponse->header('Content-Type')]
-    );
 });
     
     Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
