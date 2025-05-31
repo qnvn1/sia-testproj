@@ -18,17 +18,14 @@ RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-av
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy composer from the Composer image
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Copy the entire Laravel project (must include artisan before composer install)
+COPY . .
 
-# Copy only composer files first (for better caching)
-COPY composer.json composer.lock ./
+# Copy composer binary from the Composer image
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Install PHP dependencies using Composer
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
-
-# Now copy the rest of the application code
-COPY . .
 
 # Set correct permissions for Laravel
 RUN chown -R www-data:www-data /var/www/html \
