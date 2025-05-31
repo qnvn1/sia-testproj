@@ -9,7 +9,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
-Route::prefix('test')->group(function () {
+Route::prefix('meal')->group(function () {
     Route::get('/foodish/random', function (App\Services\FoodishService $service) {
         return $service->getRandomImage();
     });
