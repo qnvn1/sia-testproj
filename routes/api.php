@@ -16,16 +16,13 @@ Route::prefix('meal')->group(function () {
     try {
         $imageUrl = $service->getRandomImage();
         $imageResponse = Http::get($imageUrl);
-
-        if (!$imageResponse->successful()) {
-            abort(500, 'Failed to fetch image.');
-        }
-
+        
         return Response::make(
             $imageResponse->body(),
             200,
             ['Content-Type' => $imageResponse->header('Content-Type')]
         );
+
     } catch (\Exception $e) {
         return response()->json([
             'error' => 'An error occurred while loading the random image.',
