@@ -16,17 +16,7 @@ Route::prefix('meal')->group(function () {
     Route::get('/foodish/random', function (FoodishService $service) {
         try {
             $imageUrl = $service->getRandomImage();
-            Log::info("Fetched random foodish image URL: $imageUrl");
-
-            $imageResponse = Http::get($imageUrl);
-            Log::info("Image response status: " . $imageResponse->status());
-
-            if (!$imageResponse->successful()) {
-                return response()->json([
-                    'error' => 'Failed to fetch image from URL',
-                    'status' => $imageResponse->status(),
-                ], 500);
-            }
+            $imageResponse = Http::withoutVerifying()->get($imageUrl);
 
             return Response::make(
                 $imageResponse->body(),
@@ -35,14 +25,13 @@ Route::prefix('meal')->group(function () {
             );
 
         } catch (\Exception $e) {
-            Log::error('Error loading random foodish image: ' . $e->getMessage());
-
             return response()->json([
                 'error' => 'Failed to load random image',
-                'details' => $e->getMessage(),
+                'details' => $e->getMessage()
             ], 500);
         }
     });
+
     
     Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
     $imageUrl = $service->getSpecificImage('burger', 'burger1.jpg');
@@ -124,42 +113,6 @@ Route::get('/foodish/test', function () {
         return response()->json([
             'error' => 'Manual test failed',
             'details' => $e->getMessage()
-        ], 500);
-    }
-});
-Route::get('/debug-foodish', function () {
-    try {
-        // Disable SSL verification for testing only
-        $response = Http::withoutVerifying()->get('https://foodish-api.com/api/');
-
-        if (!$response->successful()) {
-            return response()->json(['error' => 'Foodish API request failed'], 500);
-        }
-
-        $json = $response->json();
-
-        if (!isset($json['image'])) {
-            return response()->json(['error' => 'No image found in Foodish API response'], 500);
-        }
-
-        $imageUrl = $json['image'];
-
-        $imageResponse = Http::withoutVerifying()->get($imageUrl);
-        if (!$imageResponse->successful()) {
-            return response()->json(['error' => 'Failed to fetch image content'], 500);
-        }
-
-        return Response::make(
-            $imageResponse->body(),
-            200,
-            ['Content-Type' => $imageResponse->header('Content-Type')]
-        );
-
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Exception caught',
-            'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
         ], 500);
     }
 });
