@@ -14,8 +14,6 @@ Route::post('/login', [AuthController::class, 'login']);
 
     Route::prefix('meal')->group(function () {
     Route::get('/foodish/random', [MealPlanController::class, 'showRandomFoodImage']);
-
- 
     Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
     $imageUrl = $service->getSpecificImage('burger', 'burger1.jpg');
     $response = Http::get($imageUrl);

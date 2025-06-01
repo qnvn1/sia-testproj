@@ -11,7 +11,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Log;
 
 class MealPlanController extends Controller
 {
@@ -59,25 +58,25 @@ class MealPlanController extends Controller
     }
 
     // Random food image (Foodish)
-    public function showRandomFoodImage()
-    {
-        try {
-            $imageUrl = $this->foodishService->getRandomImage();
-            $imageResponse = Http::withoutVerifying()->get($imageUrl);
+    public function showRandomFoodImage(): \Illuminate\Http\Response
+{
+    try {
+        $imageUrl = $this->foodishService->getRandomImage();
+        $imageResponse = Http::withoutVerifying()->get($imageUrl);
 
-            return Response::make(
-                $imageResponse->body(),
-                200,
-                ['Content-Type' => $imageResponse->header('Content-Type')]
-            );
+        return Response::make(
+            $imageResponse->body(),
+            200,
+            ['Content-Type' => $imageResponse->header('Content-Type')]
+        );
 
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Failed to load random image',
-                'details' => $e->getMessage()
-            ], 500);
-        }
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Failed to load random image',
+            'details' => $e->getMessage()
+        ], 500);
     }
+}
 
     // Random advice (AdviceSlip)
     public function showRandomAdvice()
@@ -123,22 +122,4 @@ class MealPlanController extends Controller
 
         return $response ?? response()->json(['error' => 'Failed to save meal'], 500);
     }
-
-    public function showMealImage()
-    {
-    Log::info('Reached showMealImage'); // ADD THIS LINE
-
-    try {
-        $imageUrl = $this->foodishService->getRandomImage();
-        return response()->json([
-            'image_url' => $imageUrl
-        ]);
-    } catch (\Exception $e) {
-        Log::error('Error fetching image: ' . $e->getMessage()); // ADD THIS LINE
-        return response()->json([
-            'error' => 'Could not load image',
-            'details' => $e->getMessage()
-        ], 500);
-    }
-}  
 }
