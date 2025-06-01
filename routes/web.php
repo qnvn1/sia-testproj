@@ -18,7 +18,4 @@ Route::get('/test-apis', function() {
             'exercise' => $exercise
         ]
     ]);
-    Route::get('/test-postman', function () {
-    return response()->json(['message' => 'Postman test works']);
-});
 });

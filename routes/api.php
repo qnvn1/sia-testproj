@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
+use App\Http\Controllers\AdviceController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MealPlanController;
 use App\Services\FoodishService;
@@ -83,9 +84,7 @@ Route::post('/login', [AuthController::class, 'login']);
         return $service->getRandomAdvice();
     });
     
-    Route::get('/meal/advice/{id}', function (AdviceSlipService $service, $id) {
-    return $service->getAdviceById($id);
-    });
+    Route::get('/meal/advice/{id}', [AdviceController::class, 'showAdviceById']);
     
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
