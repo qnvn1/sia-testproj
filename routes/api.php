@@ -40,15 +40,18 @@ Route::post('/login', [AuthController::class, 'login']);
         return response("Error: " . $e->getMessage(), 500);
     }
 });
-    Route::get('/foodish/burger', function ($category) {
+    Route::get('/foodish/burger', function () {
     try {
-    $json = Http::get("https://foodish-api.com/api/images/{$category}")->json();
+        // Call Foodish API for a random burger image URL
+        $json = Http::get('https://foodish-api.com/api/images/burger')->json();
+
         $imageUrl = $json['image'] ?? null;
 
         if (!$imageUrl) {
-            throw new \Exception("No image URL returned for category '{$category}'.");
+            throw new \Exception('No image URL returned from Foodish API.');
         }
 
+        // Fetch the actual image binary content
         $imageResponse = Http::get($imageUrl);
 
         if (!$imageResponse->successful()) {
@@ -56,9 +59,11 @@ Route::post('/login', [AuthController::class, 'login']);
         }
 
         $imageContent = $imageResponse->body();
-        $contentType = $imageResponse->header('Content-Type', 'image/jpeg');
+        $contentType = $imageResponse->header('Content-Type') ?: 'image/jpeg';
 
+        // Return the image directly to browser/client
         return Response::make($imageContent, 200, ['Content-Type' => $contentType]);
+
     } catch (\Throwable $e) {
         return response("Error: " . $e->getMessage(), 500);
     }
