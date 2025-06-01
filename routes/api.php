@@ -27,7 +27,7 @@ Route::get('/foodish/random', function (FoodishService $service) {
 
     } catch (\Exception $e) {
         return response()->json([
-            'error' => 'An error occurred while loading the random image.',
+            'error' => 'Failed to load random image',
             'details' => $e->getMessage()
         ], 500);
     }
