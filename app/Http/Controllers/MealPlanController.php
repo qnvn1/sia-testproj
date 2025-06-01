@@ -84,34 +84,6 @@ class MealPlanController extends Controller
     {
         return $this->adviceService->getRandomAdvice();
     }
-
-    // Specific advice (AdviceSlip)
-    public function showAdviceById($id)
-{
-    try {
-        $advice = $this->adviceService->getAdviceById($id);
-
-        // Validate the structure of the response
-        if (
-            !$advice ||
-            !isset($advice['slip']) ||
-            !isset($advice['slip']['advice'])
-        ) {
-            return response()->json(['error' => 'Advice not found'], 404);
-        }
-
-        // Return only the relevant part
-        return response()->json([
-            'id' => $advice['slip']['id'],
-            'advice' => $advice['slip']['advice']
-        ]);
-
-    } catch (\Throwable $e) {
-        Log::error("Advice API failed (ID: {$id}): " . $e->getMessage());
-        return response()->json(['error' => 'Internal Server Error'], 500);
-    }
-    }
-
     // Exercises (Exercise API)
     public function showExercises(Request $request)
     {

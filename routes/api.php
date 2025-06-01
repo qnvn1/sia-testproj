@@ -92,23 +92,6 @@ Route::post('/login', [AuthController::class, 'login']);
         ], 500);
     }
     });
-     Route::get('advice/{id}', function (AdviceSlipService $service, $id) {
-        try {
-            $advice = $service->getAdviceById($id);
-
-            if (empty($advice['slip']) || empty($advice['slip']['advice'])) {
-                return response()->json(['error' => 'Advice not found'], 404);
-            }
-
-            return response()->json($advice['slip']);
-        } catch (\Throwable $e) {
-            Log::error("Advice route error (ID: {$id}): " . $e->getMessage(), ['exception' => $e]);
-            return response()->json([
-                'error' => 'Internal Server Error',
-                'message' => $e->getMessage(), // Useful for debugging, remove in prod
-            ], 500);
-        }
-});
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
         return $service->searchMeals(request()->query('q', 'pasta'));

@@ -24,25 +24,4 @@ class AdviceSlipService
             return ['error' => 'Failed to get advice', 'details' => $e->getMessage()];
         }
     }
-
-    public function getAdviceById(int|string $id): ?array
-{
-    try {
-        $response = Http::timeout(10)->get("{$this->baseUrl}/advice/{$id}");
-        $response->throw();
-
-        $data = $response->json();
-
-        if (!isset($data['slip'])) {
-            Log::warning("AdviceSlip API unexpected structure for ID {$id}");
-            return null;
-        }
-
-        return $data;
-
-    } catch (\Throwable $e) {
-        Log::error("AdviceSlip API error for ID {$id}: " . $e->getMessage(), ['exception' => $e]);
-        return null;
-    }
-    }
 }
