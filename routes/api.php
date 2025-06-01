@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
@@ -83,13 +84,22 @@ Route::post('/login', [AuthController::class, 'login']);
         return $service->getRandomAdvice();
     });
      Route::get('/advice/{id}', function (AdviceSlipService $service, $id) {
+    try {
         $advice = $service->getAdviceById($id);
 
-        if (!$advice) {
+        if (
+            !$advice ||
+            !isset($advice['slip']) ||
+            !isset($advice['slip']['advice'])
+        ) {
             return response()->json(['error' => 'Advice not found'], 404);
         }
 
-        return response()->json($advice);
+        return response()->json($advice['slip']);
+    } catch (\Throwable $e) {
+        Log::error("Advice route error: " . $e->getMessage());
+        return response()->json(['error' => 'Internal Server Error'], 500);
+    }
     });
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
