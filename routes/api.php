@@ -40,7 +40,7 @@ Route::post('/login', [AuthController::class, 'login']);
     } catch (\Throwable $e) {
         return response("Error: " . $e->getMessage(), 500);
     }
-});
+    });
     Route::get('/foodish/burger', function () {
     try {
         // Call Foodish API for a random burger image URL
@@ -68,7 +68,7 @@ Route::post('/login', [AuthController::class, 'login']);
     } catch (\Throwable $e) {
         return response("Error: " . $e->getMessage(), 500);
     }
-});
+    });
     // Exercise API Tests
     Route::get('/exercises/biceps', function (App\Services\ExerciseService $service) {
         return $service->getExercisesByMuscle('biceps');
@@ -84,6 +84,7 @@ Route::post('/login', [AuthController::class, 'login']);
     });
     
     Route::get('/meal/advice/{id}', [MealPlanController::class, 'showAdviceById']);
+
     
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
