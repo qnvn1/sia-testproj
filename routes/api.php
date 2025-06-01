@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MealPlanController;
 use App\Services\FoodishService;
 use App\Services\AdviceSlipService;
+use App\Services\ExerciseService;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -71,13 +72,9 @@ Route::post('/login', [AuthController::class, 'login']);
     }
     });
     // Exercise API Tests
-    Route::get('/exercises/biceps', function (App\Services\ExerciseService $service) {
-        return $service->getExercisesByMuscle('biceps');
-    });
-    
-    Route::get('/exercises/cardio', function (App\Services\ExerciseService $service) {
-        return $service->getExercisesByType('cardio');
-    });
+    Route::get('/exercises/biceps', [ExerciseController::class, 'biceps']);
+    Route::get('/exercises/cardio', [ExerciseController::class, 'cardio']);
+
     
     // AdviceSlip API Tests
     Route::get('/advice/random', function () {
