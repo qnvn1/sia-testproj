@@ -56,11 +56,24 @@ class MealPlanController extends Controller
     }
 
     // Random food image (Foodish)
-    public function showMealImage()
+    public function showRandomFoodImage()
     {
-        return response()->json([
-            'image_url' => $this->foodishService->getImageUrl('pizza')
-        ]);
+        try {
+            $imageUrl = $this->foodishService->getRandomImage();
+            $imageResponse = Http::withoutVerifying()->get($imageUrl);
+
+            return Response::make(
+                $imageResponse->body(),
+                200,
+                ['Content-Type' => $imageResponse->header('Content-Type')]
+            );
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to load random image',
+                'details' => $e->getMessage()
+            ], 500);
+        }
     }
 
     // Random advice (AdviceSlip)

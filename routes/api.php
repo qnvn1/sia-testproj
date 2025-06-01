@@ -12,27 +12,10 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
 
-Route::prefix('meal')->group(function () {
-    Route::get('/foodish/random', function (FoodishService $service) {
-        try {
-            $imageUrl = $service->getRandomImage();
-            $imageResponse = Http::withoutVerifying()->get($imageUrl);
+    Route::prefix('meal')->group(function () {
+    Route::get('/foodish/random', [MealPlanController::class, 'showRandomFoodImage']);
 
-            return Response::make(
-                $imageResponse->body(),
-                200,
-                ['Content-Type' => $imageResponse->header('Content-Type')]
-            );
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'Failed to load random image',
-                'details' => $e->getMessage()
-            ], 500);
-        }
-    });
-
-    
+ 
     Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
     $imageUrl = $service->getSpecificImage('burger', 'burger1.jpg');
     $response = Http::get($imageUrl);
