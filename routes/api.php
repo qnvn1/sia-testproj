@@ -79,7 +79,6 @@ Route::post('/login', [AuthController::class, 'login']);
     Route::get('/exercises/cardio', function (App\Services\ExerciseService $service) {
         return $service->getExercisesByType('cardio');
     });
-
     // AdviceSlip API Tests
     Route::get('/advice/random', function () {
     try {
