@@ -72,8 +72,8 @@ Route::post('/login', [AuthController::class, 'login']);
     }
     });
     // Exercise API Tests
-    Route::get('/exercises/biceps', [ExerciseController::class, 'biceps']);
-    Route::get('/exercises/cardio', [ExerciseController::class, 'cardio']);
+    Route::get('/exercises/biceps', [MealPlanController::class, 'biceps']);
+    Route::get('/exercises/cardio', [MealPlanController::class, 'cardio']);
 
     
     // AdviceSlip API Tests
