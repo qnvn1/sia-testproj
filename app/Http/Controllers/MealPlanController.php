@@ -9,6 +9,8 @@ use App\Services\MealDbService;
 use App\Services\SpoonacularServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Response;
 
 class MealPlanController extends Controller
 {
