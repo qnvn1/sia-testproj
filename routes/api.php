@@ -133,11 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/meal-plan/items', [MealPlanController::class, 'saveMealItem']);
     });
 });
-    Route::get('/test-advice/{id}', function ($id, AdviceSlipService $service) {
-    $advice = $service->getAdviceById($id);
-    if (!$advice) {
-        return response()->json(['error' => 'No advice found'], 404);
-    }
-    return response()->json($advice);
+    Route::get('/test', function () {
+    return response()->json(['status' => 'ok']);
 });
 
