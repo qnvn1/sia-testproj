@@ -83,13 +83,39 @@ Route::post('/login', [AuthController::class, 'login']);
         return $service->getRandomAdvice();
     });
      Route::get('/advice/{id}', function (AdviceSlipService $service, $id) {
-        $advice = $service->getAdviceById($id);
+    // Basic ID validation
+    if (!is_numeric($id)) {
+        return response()->json([
+            'error' => 'Invalid ID format',
+            'message' => 'ID must be a number'
+        ], 400);
+    }
 
-        if (!$advice) {
-            return response()->json(['error' => 'Advice not found'], 404);
-        }
+    $advice = $service->getAdviceById($id);
 
-        return response()->json($advice);
+    // Handle service failure
+    if ($advice === null) {
+        return response()->json([
+            'error' => 'Service temporarily unavailable',
+            'message' => 'Could not connect to advice service'
+        ], 503);
+    }
+
+    // Handle invalid response structure
+    if (!isset($advice['slip'])) {
+        return response()->json([
+            'error' => 'Invalid service response',
+            'message' => 'The advice service returned malformed data'
+        ], 502);
+    }
+
+    // Successful response
+    return response()->json([
+        'data' => $advice['slip'],
+        'meta' => [
+            'retrieved_at' => now()->toDateTimeString()
+        ]
+    ]);
     });
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
