@@ -82,8 +82,14 @@ Route::post('/login', [AuthController::class, 'login']);
     Route::get('/advice/random', function (App\Services\AdviceSlipService $service) {
         return $service->getRandomAdvice();
     });
-    Route::get('/advice/{id}', function ($id) {
-        return response()->json(['test_id' => $id]);
+     Route::get('/advice/{id}', function (AdviceSlipService $service, $id) {
+        $advice = $service->getAdviceById($id);
+
+        if (!$advice) {
+            return response()->json(['error' => 'Advice not found'], 404);
+        }
+
+        return response()->json($advice);
     });
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
