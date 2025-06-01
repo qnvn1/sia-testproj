@@ -83,19 +83,22 @@ Route::post('/login', [AuthController::class, 'login']);
     Route::get('/advice/random', function (App\Services\AdviceSlipService $service) {
         return $service->getRandomAdvice();
     });
-     Route::get('/advice/{id}', function (AdviceSlipService $service, $id) {
-    try {
-        $advice = $service->getAdviceById($id);
+     Route::get('advice/{id}', function (AdviceSlipService $service, $id) {
+        try {
+            $advice = $service->getAdviceById($id);
 
-        if (empty($advice['slip']) || empty($advice['slip']['advice'])) {
-            return response()->json(['error' => 'Advice not found'], 404);
+            if (empty($advice['slip']) || empty($advice['slip']['advice'])) {
+                return response()->json(['error' => 'Advice not found'], 404);
+            }
+
+            return response()->json($advice['slip']);
+        } catch (\Throwable $e) {
+            Log::error("Advice route error (ID: {$id}): " . $e->getMessage(), ['exception' => $e]);
+            return response()->json([
+                'error' => 'Internal Server Error',
+                'message' => $e->getMessage(), // Useful for debugging, remove in prod
+            ], 500);
         }
-
-        return response()->json($advice['slip']);
-    } catch (\Throwable $e) {
-        Log::error("Advice route error (ID: {$id}): " . $e->getMessage(), ['exception' => $e]);
-        return response()->json(['error' => 'Internal Server Error'], 500);
-    }
 });
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
