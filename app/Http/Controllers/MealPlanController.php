@@ -85,29 +85,11 @@ class MealPlanController extends Controller
     }
 
     // Specific advice (AdviceSlip)
-    public function showAdviceById($id): JsonResponse
-{
-    try {
-        $advice = $this->adviceService->getAdviceById($id);
-
-        if (!$advice) {
-            return response()->json([
-                'error' => true,
-                'message' => "Advice with ID {$id} not found."
-            ], 404);
-        }
-
-        return response()->json([
-            'data' => $advice
-        ]);
-
-    } catch (\Throwable $e) {
-        return response()->json([
-            'error' => true,
-            'message' => 'Server error: ' . $e->getMessage()
-        ], 500);
+    public function showAdviceById($id)
+    {
+        return $this->adviceService->getAdviceById($id) ?? 
+               response()->json(['error' => 'Advice not found'], 404);
     }
-}
 
     // Exercises (Exercise API)
     public function showExercises(Request $request)

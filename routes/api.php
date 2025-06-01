@@ -82,10 +82,9 @@ Route::post('/login', [AuthController::class, 'login']);
     Route::get('/advice/random', function (App\Services\AdviceSlipService $service) {
         return $service->getRandomAdvice();
     });
-    
-    Route::get('/meal/advice/{id}', [MealPlanController::class, 'showAdviceById']);
-
-    
+    Route::get('/advice/{id}', function (App\Services\AdviceSlipService $service, $id) {
+        return $service->getAdviceById($id);
+    }); 
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
         return $service->searchMeals(request()->query('q', 'pasta'));

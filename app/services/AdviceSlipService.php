@@ -28,20 +28,11 @@ class AdviceSlipService
     public function getAdviceById($id)
     {
         try {
-            $url = "{$this->baseUrl}/advice/{$id}";
-            $response = Http::timeout(5)->get($url);
-
-            if ($response->status() == 404) {
-                return null; // Advice not found
-            }
-
-            $response->throw(); // Throws exceptions for other HTTP errors
-
-            return $response->json();
-
-        } catch (\Throwable $e) {
-            Log::error("Advice API Exception: " . $e->getMessage());
-            throw $e; // Let controller catch it
+            $response = Http::timeout(3)->get("{$this->baseUrl}/advice/{$id}");
+            return $response->throw()->json();
+        } catch (\Exception $e) {
+            Log::error("AdviceSlip API Error for ID {$id}: ".$e->getMessage());
+            return null;
         }
     }
 }
