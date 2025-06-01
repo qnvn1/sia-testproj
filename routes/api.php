@@ -87,20 +87,16 @@ Route::post('/login', [AuthController::class, 'login']);
     try {
         $advice = $service->getAdviceById($id);
 
-        if (
-            !$advice ||
-            !isset($advice['slip']) ||
-            !isset($advice['slip']['advice'])
-        ) {
+        if (empty($advice['slip']) || empty($advice['slip']['advice'])) {
             return response()->json(['error' => 'Advice not found'], 404);
         }
 
         return response()->json($advice['slip']);
     } catch (\Throwable $e) {
-        Log::error("Advice route error: " . $e->getMessage());
+        Log::error("Advice route error (ID: {$id}): " . $e->getMessage(), ['exception' => $e]);
         return response()->json(['error' => 'Internal Server Error'], 500);
     }
-    });
+});
     // MealDB API Tests
     Route::get('/meals/search', function (App\Services\MealDbService $service) {
         return $service->searchMeals(request()->query('q', 'pasta'));
