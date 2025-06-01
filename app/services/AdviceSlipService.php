@@ -11,7 +11,7 @@ class AdviceSlipService
 
     public function __construct()
     {
-        $this->baseUrl = config('services.advice.base_uri', 'https://api.adviceslip.com');
+        $this->baseUrl = config('services.advice.base_url', 'https://api.adviceslip.com');
     }
 
     public function getRandomAdvice()
