@@ -69,6 +69,11 @@ Route::post('/login', [AuthController::class, 'login']);
         return response("Error: " . $e->getMessage(), 500);
     }
 });
+
+    Route::get('/test-postman', function () {
+    return response()->json(['message' => 'Postman test works']);
+});
+
     // Exercise API Tests
     Route::get('/exercises/biceps', function (App\Services\ExerciseService $service) {
         return $service->getExercisesByMuscle('biceps');
