@@ -28,12 +28,28 @@ class AdviceSlipService
     public function getAdviceById($id)
 {
     try {
-        $response = Http::timeout(3)->get("{$this->baseUrl}/advice/{$id}");
-        dd($response->body()); // 👈 Add this to inspect the raw response
-        return $response->throw()->json();
+        $url = "{$this->baseUrl}/advice/{$id}";
+        $response = Http::timeout(5)->get($url);
+
+        if (!$response->successful()) {
+            throw new \Exception("Failed with status code {$response->status()}");
+        }
+
+        $data = $response->json();
+
+        if (!isset($data['slip'])) {
+            throw new \Exception("Unexpected response: " . json_encode($data));
+        }
+
+        return $data;
+
     } catch (\Exception $e) {
-        Log::error("AdviceSlip API Error for ID {$id}: ".$e->getMessage());
-        return null;
+        \Log::error("Advice API Error for ID {$id}: " . $e->getMessage());
+
+        return response()->json([
+            'error' => 'Failed to fetch advice',
+            'message' => $e->getMessage()
+        ], 500);
     }
-    }
+}
 }
