@@ -31,22 +31,25 @@ class AdviceSlipService
         $url = "{$this->baseUrl}/advice/{$id}";
         $response = Http::timeout(5)->get($url);
 
-        \Log::info("API CALL to: $url");
-        \Log::info("Response Body: " . $response->body());
+        \Log::info("Calling Advice API: {$url}");
+        \Log::info("Status: " . $response->status());
+        \Log::info("Body: " . $response->body());
 
         if (!$response->successful()) {
-            throw new \Exception("Failed with status code {$response->status()}");
+            throw new \Exception("Non-success status code: " . $response->status());
         }
 
+        $json = json_decode($response->body(), true);
+
         return response()->json([
-            'from_api' => json_decode($response->body(), true)
+            'data' => $json
         ]);
 
-    } catch (\Exception $e) {
-        \Log::error("Advice API Error: " . $e->getMessage());
+    } catch (\Throwable $e) {
+        \Log::error("Advice API Exception: " . $e->getMessage());
 
         return response()->json([
-            'error' => 'Something went wrong',
+            'error' => true,
             'message' => $e->getMessage()
         ], 500);
     }
