@@ -127,3 +127,39 @@ Route::get('/foodish/test', function () {
         ], 500);
     }
 });
+Route::get('/debug-foodish', function () {
+    try {
+        // Disable SSL verification for testing only
+        $response = Http::withoutVerifying()->get('https://foodish-api.com/api/');
+
+        if (!$response->successful()) {
+            return response()->json(['error' => 'Foodish API request failed'], 500);
+        }
+
+        $json = $response->json();
+
+        if (!isset($json['image'])) {
+            return response()->json(['error' => 'No image found in Foodish API response'], 500);
+        }
+
+        $imageUrl = $json['image'];
+
+        $imageResponse = Http::withoutVerifying()->get($imageUrl);
+        if (!$imageResponse->successful()) {
+            return response()->json(['error' => 'Failed to fetch image content'], 500);
+        }
+
+        return Response::make(
+            $imageResponse->body(),
+            200,
+            ['Content-Type' => $imageResponse->header('Content-Type')]
+        );
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Exception caught',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+        ], 500);
+    }
+});
