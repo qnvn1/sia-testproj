@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Log;
 
 class MealPlanController extends Controller
 {
@@ -86,14 +87,29 @@ class MealPlanController extends Controller
 
     // Specific advice (AdviceSlip)
     public function showAdviceById($id)
-    {
-    $advice = $this->adviceService->getAdviceById($id);
+{
+    try {
+        $advice = $this->adviceService->getAdviceById($id);
 
-    if (!$advice) {
-        return response()->json(['error' => 'Advice not found'], 404);
+        // Validate the structure of the response
+        if (
+            !$advice ||
+            !isset($advice['slip']) ||
+            !isset($advice['slip']['advice'])
+        ) {
+            return response()->json(['error' => 'Advice not found'], 404);
+        }
+
+        // Return only the relevant part
+        return response()->json([
+            'id' => $advice['slip']['id'],
+            'advice' => $advice['slip']['advice']
+        ]);
+
+    } catch (\Throwable $e) {
+        Log::error("Advice API failed (ID: {$id}): " . $e->getMessage());
+        return response()->json(['error' => 'Internal Server Error'], 500);
     }
-
-    return response()->json($advice);
     }
 
     // Exercises (Exercise API)
