@@ -15,16 +15,29 @@ Route::post('/login', [AuthController::class, 'login']);
  Route::prefix('meal')->group(function () {
     Route::get('/foodish/random', function () {
     try {
-        $response = Http::get('https://foodish-api.com/api/');
+        $json = Http::get('https://foodish-api.com/api/')->json();
+        $imageUrl = $json['image'] ?? null;
 
-        return response()->json([
-            'status' => $response->status(),
-            'data' => $response->json(),
-        ]);
+        if (!$imageUrl) {
+            throw new \Exception('No image URL returned from Foodish API.');
+        }
+
+        // Fetch the actual image content
+        $imageResponse = Http::get($imageUrl);
+
+        if (!$imageResponse->successful()) {
+            throw new \Exception('Failed to fetch image from URL.');
+        }
+
+        // Get image content and content type
+        $imageContent = $imageResponse->body();
+        $contentType = $imageResponse->header('Content-Type');
+
+        // Return image directly
+        return Response::make($imageContent, 200, ['Content-Type' => $contentType]);
+
     } catch (\Throwable $e) {
-        return response()->json([
-            'error' => $e->getMessage(),
-        ], 500);
+        return response("Error: " . $e->getMessage(), 500);
     }
 });
     Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
