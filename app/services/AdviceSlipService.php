@@ -26,13 +26,17 @@ class AdviceSlipService
     }
 
     public function getAdviceById($id)
-    {
-        try {
-            $response = Http::timeout(3)->get("{$this->baseUrl}/advice/{$id}");
-            return $response->throw()->json();
-        } catch (\Exception $e) {
-            Log::error("AdviceSlip API Error for ID {$id}: ".$e->getMessage());
-            return null;
-        }
+{
+    try {
+        $url = "{$this->baseUrl}/advice/{$id}";
+        Log::info("Calling URL: $url");
+        $response = Http::timeout(3)->get($url);
+        $data = $response->json();
+        Log::info('Response data:', $data);
+        return $data;
+    } catch (\Exception $e) {
+        Log::error("AdviceSlip API Error for ID {$id}: ".$e->getMessage());
+        return ['error' => 'Failed to fetch advice', 'details' => $e->getMessage()];
+    }
     }
 }
