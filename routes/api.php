@@ -13,21 +13,17 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
  Route::prefix('meal')->group(function () {
-    Route::get('/foodish/random', function (App\Services\FoodishService $service) {
+    Route::get('/foodish/random', function () {
     try {
-        $imageUrl = $service->getRandomImage();
-        $imageResponse = Http::get($imageUrl);
-        
-        return Response::make(
-            $imageResponse->body(),
-            200,
-            ['Content-Type' => $imageResponse->header('Content-Type')]
-        );
+        $response = Http::get('https://foodish-api.com/api/');
 
-    } catch (\Exception $e) {
         return response()->json([
-            'error' => 'An error occurred while loading the random image.',
-            'details' => $e->getMessage()
+            'status' => $response->status(),
+            'data' => $response->json(),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'error' => $e->getMessage(),
         ], 500);
     }
 });
