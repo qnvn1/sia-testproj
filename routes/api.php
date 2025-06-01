@@ -13,25 +13,36 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::prefix('meal')->group(function () {
+    Route::get('/foodish/random', function (FoodishService $service) {
+        try {
+            $imageUrl = $service->getRandomImage();
+            Log::info("Fetched random foodish image URL: $imageUrl");
 
-Route::get('/foodish/random', function (FoodishService $service) {
-    try {
-        $imageUrl = $service->getRandomImage();
-        $imageResponse = Http::get($imageUrl);
+            $imageResponse = Http::get($imageUrl);
+            Log::info("Image response status: " . $imageResponse->status());
 
-        return Response::make(
-            $imageResponse->body(),
-            200,
-            ['Content-Type' => $imageResponse->header('Content-Type')]
-        );
+            if (!$imageResponse->successful()) {
+                return response()->json([
+                    'error' => 'Failed to fetch image from URL',
+                    'status' => $imageResponse->status(),
+                ], 500);
+            }
 
-    } catch (\Exception $e) {
-        return response()->json([
-            'error' => 'Failed to load random image',
-            'details' => $e->getMessage()
-        ], 500);
-    }
-});
+            return Response::make(
+                $imageResponse->body(),
+                200,
+                ['Content-Type' => $imageResponse->header('Content-Type')]
+            );
+
+        } catch (\Exception $e) {
+            Log::error('Error loading random foodish image: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Failed to load random image',
+                'details' => $e->getMessage(),
+            ], 500);
+        }
+    });
     
     Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
     $imageUrl = $service->getSpecificImage('burger', 'burger1.jpg');
