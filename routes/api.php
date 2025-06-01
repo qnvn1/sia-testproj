@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Response;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MealPlanController;
+use App\Services\FoodishService;
 
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
@@ -12,11 +13,12 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::prefix('meal')->group(function () {
-    Route::get('/foodish/random', function (App\Services\FoodishService $service) {
+
+Route::get('/foodish/random', function (FoodishService $service) {
     try {
         $imageUrl = $service->getRandomImage();
         $imageResponse = Http::get($imageUrl);
-        
+
         return Response::make(
             $imageResponse->body(),
             200,
