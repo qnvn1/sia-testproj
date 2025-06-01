@@ -87,8 +87,13 @@ class MealPlanController extends Controller
     // Specific advice (AdviceSlip)
     public function showAdviceById($id)
     {
-        return $this->adviceService->getAdviceById($id) ?? 
-               response()->json(['error' => 'Advice not found'], 404);
+    $advice = $this->adviceService->getAdviceById($id);
+
+    if (!$advice) {
+        return response()->json(['error' => 'Advice not found'], 404);
+    }
+
+    return response()->json($advice);
     }
 
     // Exercises (Exercise API)
