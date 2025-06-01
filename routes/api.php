@@ -80,7 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 });
 
-Route::get('/foodish/test', function () {
+Route::get('/foodish/pizza', function () {
     try {
         $imageUrl = 'https://foodish-api.com/images/pizza/pizza1.jpg';
         $imageResponse = Http::get($imageUrl);
