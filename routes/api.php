@@ -123,3 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/meal-plan/items', [MealPlanController::class, 'saveMealItem']);
     });
 });
+    Route::get('/test', function () {
+    return response()->json(['status' => 'ok']);
+});
+
