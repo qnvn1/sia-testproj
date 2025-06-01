@@ -85,14 +85,12 @@ class MealPlanController extends Controller
         return $this->adviceService->getRandomAdvice();
     }
     // Exercises (Exercise API)
-    public function biceps()
+    public function showExercises(Request $request)
     {
-        return $this->service->getExercisesByMuscle('biceps');
-    }
-
-    public function cardio()
-    {
-        return $this->service->getExercisesByType('cardio');
+        $request->validate(['muscle' => 'sometimes|string']);
+        $muscle = $request->query('muscle', 'biceps');
+        return $this->exerciseService->getExercisesByMuscle($muscle) ?? 
+               response()->json(['error' => 'Exercises not found'], 404);
     }
     // Protected: Save meal plan (Spoonacular)
     public function saveMeal(Request $request)

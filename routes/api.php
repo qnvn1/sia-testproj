@@ -72,10 +72,14 @@ Route::post('/login', [AuthController::class, 'login']);
     }
     });
     // Exercise API Tests
-    Route::get('/exercises/biceps', [MealPlanController::class, 'biceps']);
-    Route::get('/exercises/cardio', [MealPlanController::class, 'cardio']);
-
+    Route::get('/exercises/biceps', function (App\Services\ExerciseService $service) {
+        return $service->getExercisesByMuscle('biceps');
+    });
     
+    Route::get('/exercises/cardio', function (App\Services\ExerciseService $service) {
+        return $service->getExercisesByType('cardio');
+    });
+
     // AdviceSlip API Tests
     Route::get('/advice/random', function () {
     try {
