@@ -96,3 +96,21 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/meal-plan/items', [MealPlanController::class, 'saveMealItem']);
     });
 });
+
+Route::get('/foodish/test', function () {
+    try {
+        $imageUrl = 'https://foodish-api.com/images/pizza/pizza1.jpg';
+        $imageResponse = Http::get($imageUrl);
+
+        return Response::make(
+            $imageResponse->body(),
+            200,
+            ['Content-Type' => $imageResponse->header('Content-Type')]
+        );
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Manual test failed',
+            'details' => $e->getMessage()
+        ], 500);
+    }
+});
