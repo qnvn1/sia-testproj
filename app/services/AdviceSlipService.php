@@ -31,15 +31,16 @@ class AdviceSlipService
         $url = "{$this->baseUrl}/advice/{$id}";
         $response = Http::timeout(5)->get($url);
 
-        \Log::info("Calling Advice API: {$url}");
-        \Log::info("Status: " . $response->status());
-        \Log::info("Body: " . $response->body());
-
-        if (!$response->successful()) {
-            throw new \Exception("Non-success status code: " . $response->status());
+        if ($response->status() == 404) {
+            return response()->json([
+                'error' => true,
+                'message' => "Advice with ID {$id} not found."
+            ], 404);
         }
 
-        $json = json_decode($response->body(), true);
+        $response->throw(); // throws exceptions for other HTTP errors
+
+        $json = $response->json();
 
         return response()->json([
             'data' => $json
