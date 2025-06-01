@@ -40,21 +40,29 @@ Route::post('/login', [AuthController::class, 'login']);
         return response("Error: " . $e->getMessage(), 500);
     }
 });
-    Route::get('/foodish/burger', function (App\Services\FoodishService $service) {
-    $imageUrl = $service->getSpecificImage('burger', 'burger1.jpg');
-    $response = Http::get($imageUrl);
+    Route::get('/foodish/burger', function ($category) {
+    try {
+    $json = Http::get("https://foodish-api.com/api/images/{$category}")->json();
+        $imageUrl = $json['image'] ?? null;
 
-    if (!$response->successful()) {
-        abort(500, 'Failed to fetch the image.');
+        if (!$imageUrl) {
+            throw new \Exception("No image URL returned for category '{$category}'.");
+        }
+
+        $imageResponse = Http::get($imageUrl);
+
+        if (!$imageResponse->successful()) {
+            throw new \Exception('Failed to fetch image from URL.');
+        }
+
+        $imageContent = $imageResponse->body();
+        $contentType = $imageResponse->header('Content-Type', 'image/jpeg');
+
+        return Response::make($imageContent, 200, ['Content-Type' => $contentType]);
+    } catch (\Throwable $e) {
+        return response("Error: " . $e->getMessage(), 500);
     }
-
-    return Response::make(
-        $response->body(),
-        200,
-        ['Content-Type' => $response->header('Content-Type')]
-    );
 });
-
     // Exercise API Tests
     Route::get('/exercises/biceps', function (App\Services\ExerciseService $service) {
         return $service->getExercisesByMuscle('biceps');
