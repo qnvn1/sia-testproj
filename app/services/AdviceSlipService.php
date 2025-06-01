@@ -31,23 +31,22 @@ class AdviceSlipService
         $url = "{$this->baseUrl}/advice/{$id}";
         $response = Http::timeout(5)->get($url);
 
+        \Log::info("API CALL to: $url");
+        \Log::info("Response Body: " . $response->body());
+
         if (!$response->successful()) {
             throw new \Exception("Failed with status code {$response->status()}");
         }
 
-        $data = $response->json();
-
-        if (!isset($data['slip'])) {
-            throw new \Exception("Unexpected response: " . json_encode($data));
-        }
-
-        return $data;
+        return response()->json([
+            'from_api' => json_decode($response->body(), true)
+        ]);
 
     } catch (\Exception $e) {
-        \Log::error("Advice API Error for ID {$id}: " . $e->getMessage());
+        \Log::error("Advice API Error: " . $e->getMessage());
 
         return response()->json([
-            'error' => 'Failed to fetch advice',
+            'error' => 'Something went wrong',
             'message' => $e->getMessage()
         ], 500);
     }
