@@ -80,8 +80,17 @@ Route::post('/login', [AuthController::class, 'login']);
     });
     
     // AdviceSlip API Tests
-    Route::get('/advice/random', function (App\Services\AdviceSlipService $service) {
-        return $service->getRandomAdvice();
+    Route::get('/advice/random', function () {
+    try {
+        $response = Http::timeout(5)->get('https://api.adviceslip.com/advice');
+        return $response->json();
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Request failed',
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(), // optional
+        ], 500);
+    }
     });
      Route::get('advice/{id}', function (AdviceSlipService $service, $id) {
         try {
